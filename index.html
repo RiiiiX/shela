@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Untuk Shela — Puisi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0C0A0C;
+    --wine:#B23A4E;
+    --gold:#C9A25E;
+    --ink:#EDE3E0;
+    --ink-dim:#8A7E80;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Cormorant Garamond', serif;
+    min-height:100vh;
+    display:flex; align-items:center; justify-content:center;
+    padding:60px 24px;
+    overflow-x:hidden;
+  }
+  @media (prefers-reduced-motion: reduce){ *{animation-duration:0.01ms !important;} }
+
+  #stage{
+    max-width:640px;
+    width:100%;
+    min-height:70vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+  }
+
+  .movement{
+    font-family:'Jost', sans-serif;
+    font-size:12px;
+    letter-spacing:4px;
+    text-transform:uppercase;
+    color:var(--gold);
+    opacity:0;
+    margin-bottom:26px;
+    transition:opacity .8s ease;
+  }
+  .movement.visible{ opacity:0.85; }
+
+  .stanza{
+    font-style:italic;
+    font-size:clamp(20px, 3.4vw, 28px);
+    line-height:1.85;
+    color:var(--ink);
+    min-height:1.85em;
+  }
+  .stanza .line{ display:block; opacity:0; }
+  .stanza .line.visible{ opacity:1; }
+
+  .cursor{
+    display:inline-block;
+    width:2px;
+    height:0.9em;
+    background:var(--gold);
+    margin-left:2px;
+    vertical-align:middle;
+    animation:blink 0.9s step-end infinite;
+  }
+  @keyframes blink{ 50%{ opacity:0; } }
+
+  #controls{
+    position:fixed;
+    bottom:24px; left:0; right:0;
+    display:flex; justify-content:center; gap:14px;
+    font-family:'Jost', sans-serif;
+  }
+  #controls button{
+    background:transparent;
+    border:1px solid rgba(201,162,94,0.35);
+    color:var(--gold);
+    padding:10px 22px;
+    border-radius:30px;
+    font-size:12px;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    cursor:pointer;
+    transition:background .3s ease, color .3s ease;
+  }
+  #controls button:hover{ background:var(--gold); color:#1a1315; }
+
+  #progress{
+    position:fixed;
+    top:0; left:0;
+    height:2px;
+    background:var(--gold);
+    width:0%;
+    transition:width .3s linear;
+  }
+
+  #titlecard{
+    text-align:center;
+  }
+  #titlecard .to{
+    font-style:italic;
+    font-size:clamp(26px,4.5vw,36px);
+    color:var(--wine);
+  }
+  #titlecard .sub{
+    font-family:'Jost', sans-serif;
+    font-size:11px;
+    letter-spacing:3px;
+    text-transform:uppercase;
+    color:var(--ink-dim);
+    margin-top:14px;
+  }
+</style>
+</head>
+<body>
+
+<audio id="bgm" src="song.mp3" preload="auto" loop></audio>
+
+<div id="progress"></div>
+
+<div id="stage">
+  <div id="titlecard">
+    <div class="to">Untuk Shela,</div>
+    <div class="sub">satu tahun kita</div>
+  </div>
+</div>
+
+<div id="controls">
+  <button id="startBtn">Mulai</button>
+  <button id="restartBtn" style="display:none;">Ulangi</button>
+</div>
+
+<script>
+const poem = [
+  { movement: "I. Awal", lines: [
+    "Sebelum ada nama, sebelum ada wajah,",
+    "kau hanya deretan huruf di sebuah bot anonim,",
+    "suara tanpa rupa yang entah kenapa terasa akrab,",
+    "yang kubalas bukan karena tahu akan jadi apa."
+  ]},
+  { lines: [
+    "Aku tidak tahu harus menyebutnya apa waktu itu.",
+    "Bukan takdir, bukan kebetulan,",
+    "hanya dua orang asing yang memutuskan",
+    "untuk terus membalas pesan, malam demi malam."
+  ]},
+  { lines: [
+    "Lalu Surabaya jadi kota pertama yang menyaksikan kita —",
+    "aku datang dengan jaket kulit yang masih ku pakai,",
+    "dan kau, yang menyembunyikan gugupmu sebisa mungkin,",
+    "berdiri di sana, mencoba terlihat biasa saja."
+  ]},
+  { movement: "II. Hari-hari yang sederhana", lines: [
+    "Kita tidak butuh tempat mewah untuk jatuh cinta.",
+    "Cukup dua posti nasi istimewah berdua,",
+    "obrolan yang tidak penting tapi terasa penting,",
+    "dan waktu yang kita habiskan tanpa pernah menghitungnya."
+  ]},
+  { lines: [
+    "Kau masih kuliah waktu itu,",
+    "sering pulang larut karena tugas yang menumpuk,",
+    "tapi selalu ada waktu untuk sekadar duduk berdua,",
+    "seolah dunia bisa menunggu sebentar saja."
+  ]},
+  { lines: [
+    "Aku mengingat itu semua bukan karena istimewa,",
+    "tapi karena di situlah, tanpa aku sadari,",
+    "kau mulai jadi bagian dari hari-hariku",
+    "yang paling aku tunggu."
+  ]},
+  { movement: "III. Perjuangan", lines: [
+    "Aku pernah mengetuk pintu, dan kau menutup itu.",
+    "Aku mengetuk lagi, dan kau tetap diam di baliknya.",
+    "Aku tidak tahu berapa kali aku mencoba,",
+    "hanya tahu aku tidak berhenti begitu saja."
+  ]},
+  { lines: [
+    "Entah kenapa, aku sudah terlanjur yakin",
+    "kaulah yang aku cari,",
+    "meski waktu itu belum ada satu pun alasan,",
+    "untuk merasa seyakin itu."
+  ]},
+  { lines: [
+    "Sampai suatu hari, tanpa aba-aba,",
+    "pintu itu sedikit terbuka,",
+    "lalu terbuka lebih lebar,",
+    "dan kau membiarkanku masuk."
+  ]},
+  { movement: "IV. 11 Juli 2025", lines: [
+    "Ada tanggal yang berubah makna,",
+    "dari sekadar angka di kalender,",
+    "menjadi hari yang aku ulang setiap tahun di dalam kepala,",
+    "jauh sebelum kalender sempat mengingatkan."
+  ]},
+  { lines: [
+    "Hari itu kau bukan lagi orang yang aku perjuangkan —",
+    "kau jadi orang yang aku miliki,",
+    "dan aku berjanji pada diriku sendiri,",
+    "untuk tidak menyia-nyiakan itu."
+  ]},
+  { movement: "V. Bersama", lines: [
+    "Aku menyaksikan kau tumbuh,",
+    "dari mahasiswa yang sering mengeluh soal tugas,",
+    "menjadi seseorang yang berjalan memakai toga,",
+    "dengan senyum yang masih aku ingat sampai sekarang."
+  ]},
+  { lines: [
+    "Aku datang hari itu bersama ayahku,",
+    "duduk di antara ratusan orang tua lain,",
+    "tapi mataku hanya mencari satu wajah,",
+    "dan aku menemukannya — bangga, tanpa perlu berkata apa-apa."
+  ]},
+  { lines: [
+    "Aku pikir waktu itu, inilah yang aku mau —",
+    "menyaksikan setiap pencapaianmu,",
+    "bukan sebagai penonton,",
+    "tapi sebagai orang yang kau izinkan berdiri di sampingmu."
+  ]},
+  { movement: "VI. Jarak", lines: [
+    "Lalu semuanya berubah bentuk.",
+    "Tidak ada lagi jalan kaki berdua,",
+    "tidak ada lagi satu piring nasi dibagi bersama,",
+    "yang ada hanya layar, dan sinyal yang kadang tidak setia."
+  ]},
+  { lines: [
+    "Gresik dan Klaten —",
+    "dua nama kota yang dulu tidak pernah aku pikirkan,",
+    "sekarang jadi jarak yang aku hitung setiap hari,",
+    "jam yang aku tunggu hanya untuk mendengar suaramu."
+  ]},
+  { lines: [
+    "Ada malam-malam aku merindukan hal paling sederhana:",
+    "duduk di sudut kota yang dulu jadi saksi kita,",
+    "menggenggam tanganmu tanpa perlu alasan,",
+    "hal-hal kecil yang dulu tidak pernah aku sadari berharga."
+  ]},
+  { movement: "VII. Bertahan", lines: [
+    "Tapi tiap malam, suaramu tetap sampai,",
+    "lewat telepon yang menyambungkan dua kota,",
+    "dan itu selalu cukup untuk membuatku percaya,",
+    "bahwa ini belum selesai, hanya sedang diuji."
+  ]},
+  { lines: [
+    "Aku percaya jarak ini bukan pemisah,",
+    "hanya jeda yang harus kita lewati berdua,",
+    "seperti bab yang belum sampai penghujungnya,",
+    "dan kita masih menulisnya, halaman demi halaman."
+  ]},
+  { movement: "VIII. Harapan", lines: [
+    "Suatu hari nanti, jarak ini akan berakhir,",
+    "dan kita akan berjalan bersisian lagi,",
+    "tanpa perlu menghitung jam keberangkatan,",
+    "atau jam kepulangan."
+  ]},
+  { lines: [
+    "Sampai hari itu tiba,",
+    "aku akan menyimpanmu di setiap detak,",
+    "di setiap doa yang kutitipkan sebelum tidur,",
+    "dan di setiap rencana yang diam-diam kususun untuk kita."
+  ]},
+  { movement: "IX. Penutup", lines: [
+    "Satu tahun sudah kita berjalan —",
+    "dari bot anonim sampai jarak yang menahan,",
+    "dari nasi pinggir jalan berdua, sampai video call larut malam,",
+    "dan cinta ini masih sama seperti awal, mungkin lebih kuat."
+  ]},
+  { lines: [
+    "Terima kasih sudah bertahan bersamaku, Sayang.",
+    "Terima kasih untuk setiap kali kau memilih untuk tetap tinggal,",
+    "meski jarak yang memisahkan kita tidak pernah mudah.",
+    "Selamat satu tahun — aku masih di sini, menunggumu, sejauh apa pun jaraknya."
+  ]},
+  { lines: [ "Dariku — Richo Ramadhan Putra" ] }
+];
+
+const stage = document.getElementById('stage');
+const startBtn = document.getElementById('startBtn');
+const restartBtn = document.getElementById('restartBtn');
+const progress = document.getElementById('progress');
+const bgm = document.getElementById('bgm');
+bgm.volume = 0.3; // atur di sini: 0 (paling pelan) sampai 1 (paling keras)
+
+const CHAR_MS = 60;        // kecepatan mengetik per karakter
+const LINE_PAUSE = 1600;   // jeda antar baris
+const STANZA_PAUSE = 2000; // jeda antar bait
+const MOVEMENT_PAUSE = 2000; // jeda sebelum judul babak baru
+
+let cancelled = false;
+
+function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
+
+async function typeLine(container, text){
+  const lineEl = document.createElement('span');
+  lineEl.className = 'line visible';
+  container.appendChild(lineEl);
+  const cursor = document.createElement('span');
+  cursor.className = 'cursor';
+  lineEl.appendChild(document.createTextNode(''));
+  container.appendChild(cursor);
+
+  let current = '';
+  for(let i=0; i<text.length; i++){
+    if(cancelled) return;
+    current += text[i];
+    lineEl.textContent = current;
+    await sleep(CHAR_MS);
+  }
+  cursor.remove();
+  await sleep(LINE_PAUSE);
+}
+
+async function playPoem(){
+  stage.innerHTML = '';
+  let totalStanzas = poem.length;
+  let idx = 0;
+
+  for(const block of poem){
+    if(cancelled) return;
+    stage.innerHTML = '';
+
+    if(block.movement){
+      const m = document.createElement('div');
+      m.className = 'movement';
+      m.textContent = block.movement;
+      stage.appendChild(m);
+      requestAnimationFrame(()=> m.classList.add('visible'));
+      await sleep(MOVEMENT_PAUSE);
+    }
+
+    const stanzaEl = document.createElement('div');
+    stanzaEl.className = 'stanza';
+    stage.appendChild(stanzaEl);
+
+    for(const line of block.lines){
+      if(cancelled) return;
+      await typeLine(stanzaEl, line);
+    }
+
+    idx++;
+    progress.style.width = (idx/totalStanzas*100) + '%';
+    await sleep(STANZA_PAUSE);
+  }
+
+  restartBtn.style.display = 'inline-block';
+}
+
+startBtn.addEventListener('click', ()=>{
+  cancelled = false;
+  startBtn.style.display = 'none';
+  restartBtn.style.display = 'none';
+  progress.style.width = '0%';
+  bgm.currentTime = 0;
+  bgm.play().catch(()=>{});
+  playPoem();
+});
+
+restartBtn.addEventListener('click', ()=>{
+  cancelled = true;
+  bgm.pause();
+  setTimeout(()=>{
+    cancelled = false;
+    progress.style.width = '0%';
+    restartBtn.style.display = 'none';
+    bgm.currentTime = 0;
+    bgm.play().catch(()=>{});
+    playPoem();
+  }, 50);
+});
+</script>
+
+</body>
+</html>
